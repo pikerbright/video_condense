@@ -16,8 +16,8 @@ find_package(OpenCV)
 set(CMAKE_EXTRA_INCLUDE_FILES libavcodec/avcodec.h)
 
 add_executable(${PROJECT_NAME}
-        draw_mv.cpp
-        #transcoding.cpp
+        #draw_mv.cpp
+        transcoding.cpp
         )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${FFmpeg_LIBS} ${OpenCV_LIBS})

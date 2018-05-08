@@ -40,7 +40,14 @@ extern "C"
 #include <libavutil/motion_vector.h>
 };
 
-#include <cv.h>
+#include <iostream>
+
+#undef av_err2str
+std::string av_err2str(int errnum) {
+    char errbuf[AV_ERROR_MAX_STRING_SIZE];
+    av_strerror(errnum, errbuf, AV_ERROR_MAX_STRING_SIZE);
+    return std::string(errbuf);
+}
 
 static AVFormatContext *ifmt_ctx;
 static AVFormatContext *ofmt_ctx;
@@ -59,8 +66,6 @@ static StreamContext *stream_ctx;
 
 static AVCodecContext *video_dec_ctx = NULL;
 static int video_stream_idx = -1;
-
-CvPoint p1,p2;
 
 static int open_input_file(const char *filename)
 {
@@ -521,7 +526,7 @@ static int flush_encoder(unsigned int stream_index)
 int main(int argc, char **argv)
 {
     int ret;
-    AVPacket packet = { .data = NULL, .size = 0 };
+    AVPacket packet = {};
     AVFrame *frame = NULL;
     enum AVMediaType type;
     unsigned int stream_index;
@@ -600,10 +605,6 @@ int main(int argc, char **argv)
 
                         int dx = (mv->dst_x-mv->src_x) * 1;
                         int dy = (mv->dst_y-mv->src_y) * 1;
-                        p1.x=mv->src_x;
-                        p1.y=mv->src_y;
-                        p2.x=mv->src_x + dx;
-                        p2.y=mv->src_y + dy;
 
                         /*
                         if (dx != 0 || dy != 0)
@@ -688,7 +689,7 @@ end:
     avformat_free_context(ofmt_ctx);
 
     if (ret < 0)
-        av_log(NULL, AV_LOG_ERROR, "Error occurred: %s\n", av_err2str(ret));
+        av_log(NULL, AV_LOG_ERROR, "Error occurred: %s\n", av_err2str(ret).c_str());
 
     return ret ? 1 : 0;
 }
